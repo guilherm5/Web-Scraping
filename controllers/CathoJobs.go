@@ -9,13 +9,13 @@ import (
 	"github.com/guilherm5/Scraping-Jobs/models"
 )
 
-func GetJobs(input string) string {
-	var Jobs models.Jobs
-	Emprego := fmt.Sprintf(`https://www.catho.com.br/vagas/%s/`, input)
+func CathoJobs(input string) string {
+	var jobs models.CathoObject
+	url := fmt.Sprintf(`https://www.catho.com.br/vagas/%s/`, input)
 	method := "GET"
 
 	client := &http.Client{}
-	req, err := http.NewRequest(method, Emprego, nil)
+	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		fmt.Println("Erro ao enviar requisição para o servidor desejado.", err)
 	}
@@ -37,16 +37,14 @@ func GetJobs(input string) string {
 	// goquery(mesma sintaxe que o jquery para achar css[mas nunca usei jquery ksks])
 	scriptContent := document.Find("script#__NEXT_DATA__").Text()
 
-	err = json.Unmarshal([]byte(scriptContent), &Jobs)
+	err = json.Unmarshal([]byte(scriptContent), &jobs)
 	if err != nil {
 		fmt.Println("Erro ao ler json", err)
 	}
 
-	for _, job := range Jobs.Props.PageProps.JobSearch.JobSearchResult.Data.Jobs {
+	for _, job := range jobs.Props.PageProps.JobSearch.JobSearchResult.Data.Jobs {
 		fmt.Println("Vaga: ", job.JobCustomizedData.Titulo)
-
 		fmt.Println("Salario: ", job.JobCustomizedData.FaixaSalarial)
-
 		fmt.Println("Beneficios: ", job.JobCustomizedData.Beneficios)
 		fmt.Println("===============")
 	}

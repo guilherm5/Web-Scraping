@@ -1,6 +1,6 @@
 package models
 
-type Jobs struct {
+type CathoObject struct {
 	Props struct {
 		PageProps struct {
 			JobSearch struct {
