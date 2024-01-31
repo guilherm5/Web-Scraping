@@ -4,9 +4,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
@@ -16,34 +14,20 @@ import (
 func EmpregareJobs(input string) string {
 	var jobs models.EmpregareObject
 	url := fmt.Sprintf(`https://www.empregare.com/api/pt-br/vagas/buscar-novo?pagina=1&itensPagina=50&query=%s`, input)
-	method := "GET"
+	metodo := "GET"
+	headerKey := ""
+	headerValue := ""
 
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		log.Println("Erro ao enviar requisição para o site desejado", err)
-	}
+	Body := InterfaceHTTP(metodo, url, headerKey, headerValue)
 
-	res, err := client.Do(req)
-	if err != nil {
-		log.Println("Erro ao estabelecer conexão com o servidor desejado", err)
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		log.Println("Erro ao ler body", err)
-
-	}
-
-	err = json.Unmarshal([]byte(body), &jobs)
+	err := json.Unmarshal([]byte(Body), &jobs)
 	if err != nil {
 		fmt.Println("Erro ao ler json", err)
 	}
 
 	file, err := os.Create("Empregare-" + time.Now().Format("02-01-2006") + ".csv")
 	if err != nil {
-		log.Println("Erro ao criarbarquivo", err)
+		log.Println("Erro ao criar arquivo .csv", err)
 	}
 
 	writer := csv.NewWriter(file)
@@ -67,7 +51,7 @@ func EmpregareJobs(input string) string {
 		header = append(header, job.TrabalhoRemoto)
 		writer.Write(header)
 	}
-	fmt.Println("Quantidade de vagas encontradas: ", len(jobs.Model.Dados))
+	qtdeVagas, _ := fmt.Println("Quantidade de vagas encontradas: ", len(jobs.Model.Dados))
 
-	return ""
+	return string(qtdeVagas)
 }
